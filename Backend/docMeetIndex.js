@@ -19,7 +19,7 @@ app.use("/uploads1", express.static("uploads1"));
 const mainRoutes = require("./Routes/mainRoutes");
 app.use("/docmeet", mainRoutes);
 
-app.listen(5001, (err) => {
+app.listen(5000, (err) => {
   if (!err) {
     console.log("server started at 5001 port");
   } else {
