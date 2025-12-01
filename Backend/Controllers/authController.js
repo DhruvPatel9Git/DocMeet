@@ -14,13 +14,68 @@ function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-const transporter = nodemailer.createTransport({
-  service: "Gmail",
-  auth: {
-    user: "namrashah56@gmail.com",
-    pass: "uidk phyi lqpr ntto",
-  },
-});
+// Email configuration: prefer SendGrid when available (recommended on Render)
+// Env options:
+// - SENDGRID_API_KEY: if present, SendGrid will be used
+// - MAIL_* env vars remain available for SMTP fallback (MAIL_HOST, MAIL_PORT, MAIL_USER, MAIL_PASS, MAIL_SECURE)
+const useSendGrid = !!process.env.SENDGRID_API_KEY;
+
+let transporter = null;
+if (!useSendGrid) {
+  const mailConfig = {
+    service: process.env.MAIL_SERVICE || undefined,
+    host: process.env.MAIL_HOST || "smtp.gmail.com",
+    port: process.env.MAIL_PORT ? Number(process.env.MAIL_PORT) : 587,
+    secure: process.env.MAIL_SECURE === "true" || false,
+    auth: {
+      user: process.env.MAIL_USER || "namrashah56@gmail.com",
+      pass: process.env.MAIL_PASS || "uidk phyi lqpr ntto",
+    },
+    connectionTimeout: process.env.MAIL_CONN_TIMEOUT
+      ? Number(process.env.MAIL_CONN_TIMEOUT)
+      : 10000,
+    greetingTimeout: process.env.MAIL_GREET_TIMEOUT
+      ? Number(process.env.MAIL_GREET_TIMEOUT)
+      : 10000,
+    socketTimeout: process.env.MAIL_SOCKET_TIMEOUT
+      ? Number(process.env.MAIL_SOCKET_TIMEOUT)
+      : 10000,
+  };
+
+  transporter = nodemailer.createTransport(mailConfig);
+
+  // Verify transporter on startup (helps detect credential/connectivity issues on Render)
+  transporter
+    .verify()
+    .then(() => console.log("SMTP transporter ready"))
+    .catch((err) =>
+      console.warn(
+        "SMTP transporter verify failed:",
+        err && err.message ? err.message : err
+      )
+    );
+} else {
+  console.log(
+    "SendGrid detected (SENDGRID_API_KEY present) — using SendGrid for email delivery"
+  );
+}
+
+// Helper to send email: uses SendGrid when available, otherwise SMTP
+async function sendEmail({ to, subject, html }) {
+  if (useSendGrid) {
+    const sgMail = require("@sendgrid/mail");
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    const from =
+      process.env.MAIL_FROM ||
+      process.env.MAIL_USER ||
+      "no-reply@docmeet.example.com";
+    const msg = { to, from, subject, html };
+    return sgMail.send(msg);
+  }
+  if (!transporter) throw new Error("SMTP transporter not configured");
+  const from = process.env.MAIL_FROM || process.env.MAIL_USER;
+  return transporter.sendMail({ to, subject, html, from });
+}
 
 const userSignUpOtp = async (req, res) => {
   try {
@@ -48,23 +103,36 @@ const userSignUpOtp = async (req, res) => {
 
       await newOTP.save();
 
-      await transporter.sendMail({
+      // Send mail asynchronously so HTTP response isn't blocked by SMTP/network delays
+      sendEmail({
         to: email,
         subject: "DocMeet OTP for Password Reset",
         html: `<p>Your OTP is <b>${otp}</b>. It will expire in 5 minutes.</p>`,
-      });
+      })
+        .then((info) =>
+          console.log(
+            "OTP email send result:",
+            info && info.response ? info.response : info
+          )
+        )
+        .catch((mailErr) =>
+          console.error(
+            "Error sending OTP email:",
+            mailErr && mailErr.message ? mailErr.message : mailErr
+          )
+        );
 
-      res.send({
-        msg: "OTP SENT SUCCESSFULLY",
-      });
+      // Always respond immediately so frontend won't hang
+      return res.status(200).send({ msg: "OTP SENT SUCCESSFULLY" });
     } else {
       // If user already exists, return a clear response so frontend doesn't hang
       return res.status(409).send({ msg: "User already exists" });
     }
   } catch (err) {
-    console.log(err);
-    res.send({
-      msg: "error",
+    console.error("userSignUpOtp error:", err);
+    return res.status(500).json({
+      msg: "Internal server error",
+      error: err && err.message ? err.message : err,
     });
   }
 };
@@ -205,15 +273,32 @@ const resetpassword = async (req, res) => {
     user.otpExpiresAt = expiry;
     await user.save();
 
-    await transporter.sendMail({
+    // Send reset email asynchronously and respond immediately
+    sendEmail({
       to: email,
       subject: "DocMeet OTP for Password Reset",
       html: `<p>Your OTP is <b>${otp}</b>. It will expire in 5 minutes.</p>`,
-    });
+    })
+      .then((info) =>
+        console.log(
+          "Reset OTP email result:",
+          info && info.response ? info.response : info
+        )
+      )
+      .catch((mailErr) =>
+        console.error(
+          "Error sending reset OTP email:",
+          mailErr && mailErr.message ? mailErr.message : mailErr
+        )
+      );
 
     res.status(200).json({ message: "OTP sent to email" });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    console.error("resetpassword error:", error);
+    res.status(500).json({
+      message: "Internal server error",
+      error: error && error.message ? error.message : error,
+    });
   }
 };
 
