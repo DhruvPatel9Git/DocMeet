@@ -54,12 +54,6 @@ function Footer() {
               >
                 Contact
               </Link>
-              <Link
-                to="/privacy"
-                className="text-sm text-gray-600 hover:text-indigo-600"
-              >
-                Privacy
-              </Link>
             </div>
 
             {/* Contact Info */}
@@ -69,21 +63,13 @@ function Footer() {
                 href="tel:+917993229000"
                 className="text-sm text-gray-600 hover:text-indigo-600"
               >
-                +91 79932 29000
+                +91 76006 21386
               </a>
               <a
                 href="mailto:docmeet@gmail.com"
                 className="text-sm text-gray-600 hover:text-indigo-600"
               >
                 docmeet@gmail.com
-              </a>
-              <a
-                href="https://docmeet1.onrender.com"
-                target="_blank"
-                rel="noreferrer"
-                className="text-sm text-gray-600 hover:text-indigo-600"
-              >
-                Live Site
               </a>
             </div>
           </div>
