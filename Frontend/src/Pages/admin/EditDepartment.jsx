@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
-import Sidebar from './Sidebar';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
+import Sidebar from "./Sidebar";
 
 function EditDepartment() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [departmentData, setDepartmentData] = useState({
-    departmentName: '',
-    image: ''
+    departmentName: "",
+    image: "",
   });
   const [imageFile, setImageFile] = useState(null);
 
@@ -17,13 +17,15 @@ function EditDepartment() {
   useEffect(() => {
     const fetchDepartment = async () => {
       try {
-        const res = await axios.get(`http://localhost:5001/docmeet/admin/getdepartment/${id}`);
+        const res = await axios.get(
+          `https://docmeet1.onrender.com/docmeet/admin/getdepartment/${id}`
+        );
         setDepartmentData({
           departmentName: res.data.departmentName,
-          image: res.data.image
+          image: res.data.image,
         });
       } catch (error) {
-        console.error('Error fetching department:', error);
+        console.error("Error fetching department:", error);
       }
     };
 
@@ -33,26 +35,26 @@ function EditDepartment() {
   const handleChange = (e) => {
     setDepartmentData({
       ...departmentData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleSubmit = async () => {
     const formData = new FormData();
-    formData.append('departmentName', departmentData.departmentName);
+    formData.append("departmentName", departmentData.departmentName);
     if (imageFile) {
-      formData.append('myfile', imageFile); // backend expects 'myfile' key
+      formData.append("myfile", imageFile); // backend expects 'myfile' key
     }
 
     try {
       await axios.put(
-        `http://localhost:5001/docmeet/admin/editdepartment/${id}`,
+        `https://docmeet1.onrender.com/docmeet/admin/editdepartment/${id}`,
         formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
-      navigate('/admin/departmentlist');
+      navigate("/admin/departmentlist");
     } catch (error) {
-      console.error('Error updating department:', error);
+      console.error("Error updating department:", error);
     }
   };
 
@@ -78,7 +80,7 @@ function EditDepartment() {
             <label className="block mb-1 font-medium">Current Icon</label>
             {departmentData.image && (
               <img
-                src={`http://localhost:5001/uploads1/${departmentData.image}`}
+                src={`https://docmeet1.onrender.com/uploads1/${departmentData.image}`}
                 alt="department"
                 className="w-16 h-16 rounded-full object-cover mb-2"
               />

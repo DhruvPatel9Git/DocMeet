@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
-import { useParams } from 'react-router-dom';
-import verfied from '../../assets/images/verfied.png';
-import info from '../../assets/images/information.png';
-import { AuthContext } from '../../Components/Common/AuthContext';
+import React, { useEffect, useState, useContext } from "react";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import verfied from "../../assets/images/verfied.png";
+import info from "../../assets/images/information.png";
+import { AuthContext } from "../../Components/Common/AuthContext";
 
 function PartDoc() {
   const { currencySymbol, token, userData } = useContext(AuthContext);
@@ -14,18 +14,19 @@ function PartDoc() {
   const [totalDays, setTotalDays] = useState([]);
   const [time, setTime] = useState([]);
   const [selectedFullDay, setSelectedFullDay] = useState(null);
-  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
-    axios.get(`http://localhost:5001/docmeet/user/appointmentShowForHide`)
-      .then(res => {
+    axios
+      .get(`https://docmeet1.onrender.com/docmeet/user/appointmentShowForHide`)
+      .then((res) => {
         setAppointmentData(res.data.appointments || []);
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   }, []);
 
   useEffect(() => {
@@ -33,16 +34,26 @@ function PartDoc() {
   }, [userData]);
 
   useEffect(() => {
-    axios.get(`http://localhost:5001/docmeet/user/partDoc/${_id}`)
-      .then(res => setStoreDoctorData(res.data.data))
-      .catch(err => console.log(err));
+    axios
+      .get(`https://docmeet1.onrender.com/docmeet/user/partDoc/${_id}`)
+      .then((res) => setStoreDoctorData(res.data.data))
+      .catch((err) => console.log(err));
   }, [_id]);
 
   useEffect(() => {
-    if (storeDoctorData?.doctorTimmings && storeDoctorData?.slotDuration && selectedDate && appointmentData) {
+    if (
+      storeDoctorData?.doctorTimmings &&
+      storeDoctorData?.slotDuration &&
+      selectedDate &&
+      appointmentData
+    ) {
       const slots = [];
-      const [startHour, startMin] = storeDoctorData.doctorTimmings.doctorStart.split(":").map(Number);
-      const [endHour, endMin] = storeDoctorData.doctorTimmings.doctorEnd.split(":").map(Number);
+      const [startHour, startMin] = storeDoctorData.doctorTimmings.doctorStart
+        .split(":")
+        .map(Number);
+      const [endHour, endMin] = storeDoctorData.doctorTimmings.doctorEnd
+        .split(":")
+        .map(Number);
 
       const today = new Date();
       const slotDate = new Date();
@@ -69,9 +80,9 @@ function PartDoc() {
           current.getFullYear() === today.getFullYear();
 
         if ((isToday && current >= now) || !isToday) {
-          const timeStr = current.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
+          const timeStr = current.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
             hour12: true,
           });
           slots.push(timeStr);
@@ -80,10 +91,17 @@ function PartDoc() {
       }
 
       const bookedSlots = appointmentData
-        .filter(val => val.status === "approved" && val.slotDate === `${dateNum} ${month}` && val.doctorID === storeDoctorData._id)
-        .map(val => val.slotTime);
+        .filter(
+          (val) =>
+            val.status === "approved" &&
+            val.slotDate === `${dateNum} ${month}` &&
+            val.doctorID === storeDoctorData._id
+        )
+        .map((val) => val.slotTime);
 
-      const availableSlots = slots.filter(time => !bookedSlots.includes(time));
+      const availableSlots = slots.filter(
+        (time) => !bookedSlots.includes(time)
+      );
       setTime(availableSlots);
     }
   }, [storeDoctorData, selectedDate, selectedFullDay, appointmentData]);
@@ -99,7 +117,10 @@ function PartDoc() {
 
         const dayName = daysOfWeek[date.getDay()];
         if (storeDoctorData.doctorAvailableDays.includes(dayName)) {
-          const formattedDate = `${dayName} - ${date.getDate()} ${date.toLocaleString('default', { month: 'short' })}`;
+          const formattedDate = `${dayName} - ${date.getDate()} ${date.toLocaleString(
+            "default",
+            { month: "short" }
+          )}`;
           nextAvailableDays.push(formattedDate);
         }
       }
@@ -114,11 +135,14 @@ function PartDoc() {
         doctorID: storeDoctorData._id,
         slotTime: selectedTime,
         slotDate: selectedDate,
-        slotDay: selectedDay
+        slotDay: selectedDay,
       };
 
       try {
-        const response = await axios.post(`http://localhost:5001/docmeet/user/appintmentBooking`, appointmentData);
+        const response = await axios.post(
+          `https://docmeet1.onrender.com/docmeet/user/appintmentBooking`,
+          appointmentData
+        );
         setSelectedTime(null);
         setSelectedFullDay(null);
         setShowSuccess(true);
@@ -127,7 +151,7 @@ function PartDoc() {
         console.log(err);
       }
     } else {
-      alert('Please sign in first');
+      alert("Please sign in first");
     }
   };
 
@@ -135,77 +159,125 @@ function PartDoc() {
     <div>
       {storeDoctorData ? (
         <>
-          <div className='flex flex-col sm:flex-row gap-4'>
+          <div className="flex flex-col sm:flex-row gap-4">
             <div>
-              <img className='bg-[#5D6BFF] w-full sm:max-w-65 rounded-xl shadow-lg border border-white/30' src={storeDoctorData.doctorImage?.imgPath} alt="Doctor" />
+              <img
+                className="bg-[#5D6BFF] w-full sm:max-w-65 rounded-xl shadow-lg border border-white/30"
+                src={storeDoctorData.doctorImage?.imgPath}
+                alt="Doctor"
+              />
             </div>
 
-            <div className='flex-1 bg-white/20 backdrop-blur-md border border-white/30 shadow-xl rounded-xl p-8 py-7 mx-2 sm:mx-0 mt-[-80px] sm:mt-0'>
+            <div className="flex-1 bg-white/20 backdrop-blur-md border border-white/30 shadow-xl rounded-xl p-8 py-7 mx-2 sm:mx-0 mt-[-80px] sm:mt-0">
               <p className="text-lg font-semibold flex items-center gap-2 text-gray-900">
-                {storeDoctorData.doctorName} <img src={verfied} alt="Verified" className="w-5 h-5" />
+                {storeDoctorData.doctorName}{" "}
+                <img src={verfied} alt="Verified" className="w-5 h-5" />
               </p>
 
-              <div className='flex items-center gap-2 text-sm mt-1 text-gray-700'>
-                <p>{storeDoctorData.doctorDegree} - {storeDoctorData.doctorSpeciality}</p>
-                <button className='py-0.5 px-2 border text-xs rounded-full mb-3'>{storeDoctorData.doctorExperience} Years</button>
+              <div className="flex items-center gap-2 text-sm mt-1 text-gray-700">
+                <p>
+                  {storeDoctorData.doctorDegree} -{" "}
+                  {storeDoctorData.doctorSpeciality}
+                </p>
+                <button className="py-0.5 px-2 border text-xs rounded-full mb-3">
+                  {storeDoctorData.doctorExperience} Years
+                </button>
               </div>
 
               <div>
-                <p className="flex items-center gap-1 text-sm font-medium text-gray-900 mt-3">About
-                  <img src={info} alt="Info" className="w-3.5 h-3.5 cursor-pointer hover:scale-110 transition-transform duration-200" />
+                <p className="flex items-center gap-1 text-sm font-medium text-gray-900 mt-3">
+                  About
+                  <img
+                    src={info}
+                    alt="Info"
+                    className="w-3.5 h-3.5 cursor-pointer hover:scale-110 transition-transform duration-200"
+                  />
                 </p>
-                <p className='text-sm text-gray-600 max-w-[700px] mt-1'>{storeDoctorData.doctorDesc}</p>
+                <p className="text-sm text-gray-600 max-w-[700px] mt-1">
+                  {storeDoctorData.doctorDesc}
+                </p>
               </div>
 
-              <p className='text-sm text-gray-600 max-w-[700px] mt-3'>Appointment Fees : <span className='text-gray-600 font-bold'>{currencySymbol}{storeDoctorData.doctorFees}</span></p>
+              <p className="text-sm text-gray-600 max-w-[700px] mt-3">
+                Appointment Fees :{" "}
+                <span className="text-gray-600 font-bold">
+                  {currencySymbol}
+                  {storeDoctorData.doctorFees}
+                </span>
+              </p>
             </div>
           </div>
 
-          <div className='sm:ml-72 sm:pl-4 mt-8 font-medium text-gray-700'>
+          <div className="sm:ml-72 sm:pl-4 mt-8 font-medium text-gray-700">
             <p className="text-lg mb-3">Available Days</p>
-            <div className='flex gap-3 flex-wrap overflow-x-scroll p-2'>
+            <div className="flex gap-3 flex-wrap overflow-x-scroll p-2">
               {totalDays.map((day, index) => (
-                <span key={index} onClick={() => {
-                  const [day1, datePart] = day.split(" - ");
-                  const [dateNum, month] = datePart.split(" ");
-                  setSelectedDay(day1);
-                  setSelectedDate(`${dateNum} ${month}`);
-                  setSelectedFullDay(day);
-                }}
+                <span
+                  key={index}
+                  onClick={() => {
+                    const [day1, datePart] = day.split(" - ");
+                    const [dateNum, month] = datePart.split(" ");
+                    setSelectedDay(day1);
+                    setSelectedDate(`${dateNum} ${month}`);
+                    setSelectedFullDay(day);
+                  }}
                   className={`px-4 py-2 rounded-full text-sm shadow-sm cursor-pointer transition-all 
-                    ${selectedFullDay === day ? 'bg-[#3b4ae0] text-white scale-105' : 'bg-gradient-to-br from-[#e0e7ff] to-[#f0f4ff] shadow-xl text-black'}`}>
+                    ${
+                      selectedFullDay === day
+                        ? "bg-[#3b4ae0] text-white scale-105"
+                        : "bg-gradient-to-br from-[#e0e7ff] to-[#f0f4ff] shadow-xl text-black"
+                    }`}
+                >
                   {day}
                 </span>
               ))}
             </div>
           </div>
 
-          <div className='sm:ml-72 sm:pl-4 mt-8 font-medium text-gray-700 '>
-            <div className='flex gap-3 flex-wrap p-2'>
+          <div className="sm:ml-72 sm:pl-4 mt-8 font-medium text-gray-700 ">
+            <div className="flex gap-3 flex-wrap p-2">
               {time.length > 0 ? (
                 time.map((val, index) => (
-                  <span key={index} onClick={() => setSelectedTime(val)}
+                  <span
+                    key={index}
+                    onClick={() => setSelectedTime(val)}
                     className={`px-4 py-2 rounded-full text-sm shadow-sm cursor-pointer transition-all 
-                      ${selectedTime === val ? 'bg-[#3b4ae0] text-white scale-105' : 'bg-gradient-to-br from-[#e0e7ff] to-[#f0f4ff] shadow-xl text-black'}`}>
+                      ${
+                        selectedTime === val
+                          ? "bg-[#3b4ae0] text-white scale-105"
+                          : "bg-gradient-to-br from-[#e0e7ff] to-[#f0f4ff] shadow-xl text-black"
+                      }`}
+                  >
                     {val}
                   </span>
                 ))
               ) : (
-                <p className='text-sm text-gray-500'>No available slots listed</p>
+                <p className="text-sm text-gray-500">
+                  No available slots listed
+                </p>
               )}
             </div>
 
             <div className="mt-6 p-2">
-              <button onClick={handleOnClick} className="bg-[#5D6BFF] hover:bg-[#4a5ce3] text-white font-medium px-6 py-2 rounded-lg shadow transition duration-200">Book Appointment</button>
+              <button
+                onClick={handleOnClick}
+                className="bg-[#5D6BFF] hover:bg-[#4a5ce3] text-white font-medium px-6 py-2 rounded-lg shadow transition duration-200"
+              >
+                Book Appointment
+              </button>
             </div>
           </div>
         </>
       ) : (
-        <div className="text-center mt-10 text-gray-600">Loading doctor details...</div>
+        <div className="text-center mt-10 text-gray-600">
+          Loading doctor details...
+        </div>
       )}
 
       {showSuccess && (
-        <div className="fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 transition-all">✅ Appointment booked successfully!</div>
+        <div className="fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 transition-all">
+          ✅ Appointment booked successfully!
+        </div>
       )}
     </div>
   );

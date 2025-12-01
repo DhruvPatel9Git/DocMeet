@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import Sidebar from './Sidebar';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import Sidebar from "./Sidebar";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function AddDepartment() {
   const [departmentData, setDepartmentData] = useState({
-    departmentName: '',
+    departmentName: "",
   });
   const [imageFile, setImageFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -14,7 +14,7 @@ function AddDepartment() {
   const handleChange = (e) => {
     setDepartmentData({
       ...departmentData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -36,23 +36,27 @@ function AddDepartment() {
     }
 
     const formData = new FormData();
-    formData.append('departmentName', departmentData.departmentName);
-    formData.append('myfile', imageFile); // Key must match backend (already correct)
+    formData.append("departmentName", departmentData.departmentName);
+    formData.append("myfile", imageFile); // Key must match backend (already correct)
 
     try {
-      const res = await axios.post('http://localhost:5001/docmeet/admin/adddepartment', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+      const res = await axios.post(
+        "https://docmeet1.onrender.com/docmeet/admin/adddepartment",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
-      });
+      );
 
-      console.log('Department added:', res.data);
-      setDepartmentData({ departmentName: '' });
+      console.log("Department added:", res.data);
+      setDepartmentData({ departmentName: "" });
       setImageFile(null);
       setPreviewUrl(null);
-      navigate('/admin/departmentlist');
+      navigate("/admin/departmentlist");
     } catch (err) {
-      console.error('Error adding department:', err);
+      console.error("Error adding department:", err);
     }
   };
 
@@ -62,7 +66,9 @@ function AddDepartment() {
       <form className="w-full p-4 md:p-8 flex flex-col">
         <div className="bg-white px-4 md:px-8 py-6 border rounded w-full max-w-4xl mx-auto shadow-md">
           <div className="text-center mb-6">
-            <p className="text-2xl font-semibold text-gray-700">Add Department</p>
+            <p className="text-2xl font-semibold text-gray-700">
+              Add Department
+            </p>
           </div>
 
           <div className="space-y-6 text-gray-700">

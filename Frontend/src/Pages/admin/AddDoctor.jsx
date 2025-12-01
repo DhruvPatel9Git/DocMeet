@@ -64,7 +64,7 @@ function AddDoctor() {
       if (doctorData._id) {
         // EDIT REQUEST
         const res = await axios.put(
-          `http://localhost:5001/docmeet/admin/updateDoctor/${doctorData._id}`,
+          `https://docmeet1.onrender.com/docmeet/admin/updateDoctor/${doctorData._id}`,
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -72,7 +72,7 @@ function AddDoctor() {
       } else {
         // ADD REQUEST
         const res = await axios.post(
-          `http://localhost:5001/docmeet/admin/doctorAdd`,
+          `https://docmeet1.onrender.com/docmeet/admin/doctorAdd`,
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
