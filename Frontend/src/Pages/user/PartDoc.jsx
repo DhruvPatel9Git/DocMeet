@@ -236,8 +236,8 @@ function PartDoc() {
             <div>
               <img
                 className="bg-[#5D6BFF] w-full sm:max-w-65 rounded-xl shadow-lg border border-white/30"
-                src={storeDoctorData.doctorImage?.imgPath}
-                alt="Doctor"
+                src={storeDoctorData.doctorImage?.imgPath || "/img2.png"}
+                alt={storeDoctorData.doctorName || "Doctor"}
               />
             </div>
 

@@ -48,8 +48,8 @@ function Dermatologist() {
                 className="flex flex-col items-center space-y-2 border p-3 bg-white shadow-lg rounded-lg"
               >
                 <img
-                  src={val.doctorImage?.imgPath || "/default-doctor.png"}
-                  alt="Doctor"
+                  src={val.doctorImage?.imgPath || "/img2.png"}
+                  alt={val.doctorName}
                   className="h-40 w-40 object-cover rounded-full bg-[#5D6BFF]"
                 />
 

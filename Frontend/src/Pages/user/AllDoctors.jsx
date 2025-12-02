@@ -80,7 +80,8 @@ function AllDoctors() {
                     className="flex flex-col items-center space-y-2 border p-3 bg-white shadow-lg"
                   >
                     <img
-                      src={val.doctorImage?.imgPath}
+                      src={val.doctorImage?.imgPath || "/img2.png"}
+                      alt={val.doctorName}
                       className="bg-[#5D6BFF]"
                     />
                     <div className="flex items-center space-x-2">
