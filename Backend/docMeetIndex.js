@@ -7,6 +7,11 @@ require("dotenv").config();
 require("./dbconfig");
 const path = require("path");
 
+// Ensure SAVE_LOCAL_UPLOADS defaults to 'false' unless explicitly enabled
+if (typeof process.env.SAVE_LOCAL_UPLOADS === "undefined") {
+  process.env.SAVE_LOCAL_UPLOADS = "false";
+}
+
 app.use("/doctorImages", express.static(path.join(__dirname, "doctorImages")));
 app.use(
   "/doctorAddedPrescriptions",
