@@ -1,3 +1,5 @@
+//new firebase admin setup file
+
 const admin = require("firebase-admin");
 
 if (!process.env.FIREBASE_SA) {

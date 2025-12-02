@@ -3,7 +3,7 @@ const adminSignInModel = require('../Models/adminModel');
 const { doctorSigninModel, departmentSchema1 } = require('../Models/doctorModel');
 const {nurseModel} = require("../Models/nurseModel")
 
-const adminSignin = (req, res) => {
+ const adminSignin = (req, res) => {
     let adminSignInData = new adminSignInModel({
         email: req.body.email,
         password: req.body.password,
